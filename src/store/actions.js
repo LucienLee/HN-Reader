@@ -5,6 +5,7 @@ let isFetchImmediately = false;
 
 export default {
   async getListData({ commit, dispatch, state }) {
+    commit('SET_LOADING', { isLoading: true });
     if (state.list.length === 0) {
       const topIDs = await fetchTopIDs();
       commit('SET_LIST', { ids: topIDs });
@@ -21,13 +22,15 @@ export default {
     const numOfFetchByTraversal = itemsPerPage - numOfFetchInList;
     const fetchList = list.slice(beginIndex, beginIndex + numOfFetchInList);
 
+    // Find stock is not enough. stop probe asap
     if (numOfFetchByTraversal > 0) {
       isFetchImmediately = true;
     }
 
+    // Fetch in the waiting list
     const nextToFetchID = await Promise.all(fetchList.map(id => dispatch('getItemByID', { id })))
       .then(() => {
-        // Recaculate Index in case that realtime items prepend into the list
+        // Recaculate index in case that realtime items prepend into the list
         const nextID = numOfFetchInList > 0
           && getters.nextToFetchIndex + numOfFetchInList < list.length
             ? list[getters.nextToFetchIndex + numOfFetchInList]
@@ -36,8 +39,9 @@ export default {
         return nextID;
       });
 
+    // Fetch by travsersal id, which is slow
     if (numOfFetchByTraversal > 0) {
-      fetchStoriesByTraversal(nextToFetchID, numOfFetchByTraversal, (item) => {
+      await fetchStoriesByTraversal(nextToFetchID, numOfFetchByTraversal, (item) => {
         commit('SET_ITEM', { item });
         commit('SET_LIST', { ids: [item.id] });
       }).then((id) => {
@@ -45,6 +49,8 @@ export default {
         isFetchImmediately = false;
       });
     }
+    commit('SET_LOADING', { isLoading: false });
+    // console.log(getters.numOfItems);
   },
   getItemByID({ commit }, { id }) {
     return fetchItem(id)
