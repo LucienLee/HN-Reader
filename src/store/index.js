@@ -10,6 +10,9 @@ export default new Vuex.Store({
   state: {
     list: [],
     items: {},
+    itemsPerPage: 100,
+    reservedIDs: 750,
+    nextToFetchID: 0,
     isLoading: false,
   },
   actions,
