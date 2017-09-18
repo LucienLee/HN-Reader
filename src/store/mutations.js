@@ -3,13 +3,7 @@ import Vue from 'vue';
 
 export default {
   SET_LIST(state, { ids }) {
-    if (state.list.length === 0) {
-      state.list = ids;
-    } else {
-      // We are sure the new items would be newer or elder the current list
-      const position = ids[0] > state.list[0] ? 0 : state.list.length;
-      state.list.splice(position, 0, ...ids);
-    }
+    state.list = state.list.concat(ids).sort((a, b) => b - a);
   },
   SET_ITEM(state, { item }) {
     if (item) {
