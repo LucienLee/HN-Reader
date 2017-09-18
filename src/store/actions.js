@@ -50,13 +50,12 @@ export default {
       });
     }
     commit('SET_LOADING', { isLoading: false });
-    // console.log(getters.numOfItems);
   },
   getItemByID({ commit }, { id }) {
     return fetchItem(id)
       .then((item) => {
-        // if (!item) console.log('one null');
         commit('SET_ITEM', { item });
+        return item;
       });
   },
   watchWaitToFetchList({ commit, state, getters }) {
@@ -86,14 +85,14 @@ export default {
     return () => cancelAnimationFrame(reqID);
   },
   watchNewStories({ commit, state, dispatch }) {
-    return watchList((list) => {
+    return watchList(async (list) => {
       const newItems = difference(list, state.list);
-      commit('SET_LIST', { ids: newItems });
-      setTimeout(() => {
-        newItems.forEach((el) => {
-          dispatch('getItemByID', { id: el });
-        });
-      }, 200);
+      /*
+        Because of API limitation, items might be not available in the newest list immediately.
+        Hence, we check unloaded items in every newest list update.
+      */
+      const results = Promise.all(newItems.map(id => dispatch('getItemByID', { id })));
+      commit('SET_LIST', newItems.filter((item, idx) => results[idx]));
     });
   },
 };

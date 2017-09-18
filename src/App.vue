@@ -47,8 +47,13 @@ export default {
   },
   mounted() {
     this.getListData();
-    this.watchWaitToFetchList();
+    this.unwatchWaitToFetchList = this.watchWaitToFetchList();
+    this.unwatchNewStories = this.watchNewStories();
     window.addEventListener('scroll', debounce(this.onScroll, 100));
+  },
+  beforeDestroy() {
+    this.unwatchWaitToFetchList();
+    this.unwatchNewStories();
   },
 };
 </script>
@@ -72,6 +77,7 @@ header
 
 main
   padding: 2em 0
+  // @media()
 
 .logo
   position: relative
@@ -83,6 +89,7 @@ main
 .item-list
   list-style-type: none
   margin: 0 auto
+  padding: 0
   max-width: 800px
 
 </style>
