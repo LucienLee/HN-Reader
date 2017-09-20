@@ -1,19 +1,34 @@
-import { fetchTopIDs, fetchItem, fetchStoriesByTraversal, checkStoriesByTraversal, watchList } from '@/firebase';
-import { difference } from 'lodash-es';
+import { fetchTopIDs, fetchItem, fetchStoriesByTraversal, checkStoriesByTraversal, watchList, watchConnection } from '@/firebase';
+import { difference, debounce } from 'lodash-es';
 
 let isFetchImmediately = false;
+let storageTimestamp = 0;
+
+const save = debounce((state) => {
+  localStorage.setItem('state', JSON.stringify({
+    list: state.list,
+    items: state.items,
+    nextToFetchID: state.nextToFetchID,
+    timestamp: Date.now(),
+  }));
+}, 200);
+
+function load() {
+  return JSON.parse(localStorage.getItem('state'));
+}
 
 export default {
-  async getListData({ commit, dispatch, state }) {
-    commit('SET_LOADING', { isLoading: true });
-    if (state.list.length === 0) {
+  async getNewestList({ commit, state }) {
+    const outdated = Date.now() - storageTimestamp > 3 * 60 * 1000;
+    if (state.list.length === 0 || outdated) {
       const topIDs = await fetchTopIDs();
-      commit('SET_LIST', { ids: topIDs });
+      commit('SET_ENTIRE_LIST', { list: topIDs });
       commit('SET_NEXT_TO_FETCH', { id: topIDs[0] });
+      commit('CLEAN_ITEMS');
     }
-    dispatch('getItems');
   },
   async getItems({ state, commit, dispatch, getters }) {
+    commit('SET_LOADING', { isLoading: true });
     const { list, itemsPerPage } = state;
     const beginIndex = getters.nextToFetchIndex;
     const numOfFetchInList = beginIndex === -1
@@ -50,6 +65,7 @@ export default {
       });
     }
     commit('SET_LOADING', { isLoading: false });
+    save(state);
   },
   getItemByID({ commit }, { id }) {
     return fetchItem(id)
@@ -57,6 +73,13 @@ export default {
         commit('SET_ITEM', { item });
         return item;
       });
+  },
+  getDataFromStorage({ commit }) {
+    const { list, items, nextToFetchID, timestamp } = load();
+    commit('SET_LIST', { ids: list });
+    commit('SET_NEXT_TO_FETCH', { id: nextToFetchID });
+    commit('SET_ITEMS', { items });
+    storageTimestamp = timestamp;
   },
   watchWaitToFetchList({ commit, state, getters }) {
     let isFetching = false;
@@ -82,7 +105,7 @@ export default {
     }
 
     const reqID = requestAnimationFrame(checkWaitToFetchList);
-    return () => cancelAnimationFrame(reqID);
+    return () => { cancelAnimationFrame(reqID); };
   },
   watchNewStories({ commit, state, dispatch }) {
     return watchList(async (list) => {
@@ -92,7 +115,13 @@ export default {
         Hence, we check unloaded items in every newest list update.
       */
       const results = Promise.all(newItems.map(id => dispatch('getItemByID', { id })));
-      commit('SET_LIST', newItems.filter((item, idx) => results[idx]));
+      commit('SET_LIST', { ids: newItems.filter((item, idx) => results[idx]) });
+      save(state);
+    });
+  },
+  detechConnection({ commit }) {
+    watchConnection((isOnline) => {
+      commit('SET_ONLINE', { isOnline: isOnline || window.navigator.onLine });
     });
   },
 };

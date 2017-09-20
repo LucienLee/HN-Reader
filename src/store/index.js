@@ -13,6 +13,7 @@ export default new Vuex.Store({
     itemsPerPage: 20,
     reservedIDs: 750,
     nextToFetchID: 0,
+    isOnline: true,
     isLoading: true,
   },
   actions,

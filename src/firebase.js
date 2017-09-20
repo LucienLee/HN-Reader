@@ -9,6 +9,7 @@ const HACKER_NEWS_CONFIG = {
 
 const firebaseApp = Firebase.initializeApp(HACKER_NEWS_CONFIG.config);
 const db = firebaseApp.database().ref(HACKER_NEWS_CONFIG.version);
+const connectedRef = firebaseApp.database().ref('.info/connected');
 
 /**
  * Fetch data from specified path
@@ -103,5 +104,21 @@ function watchList(cb) {
     ref.off('value', handler);
   };
 }
+/**
+ * Watch Firebase socket connection
+ * @param {function} cb callback function when detect firebase connection change
+ */
+function watchConnection(cb) {
+  connectedRef.on('value', (snap) => {
+    cb(snap.val());
+  });
+}
 
-export { fetchTopIDs, fetchItem, fetchStoriesByTraversal, checkStoriesByTraversal, watchList };
+export {
+  fetchTopIDs,
+  fetchItem,
+  fetchStoriesByTraversal,
+  checkStoriesByTraversal,
+  watchList,
+  watchConnection,
+};
