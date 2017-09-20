@@ -1,4 +1,7 @@
-import Firebase from 'firebase';
+// Make webpack tree shake firebase
+import * as Firebase from 'firebase/app';
+import 'firebase/database';
+
 
 const HACKER_NEWS_CONFIG = {
   version: '/v0',
