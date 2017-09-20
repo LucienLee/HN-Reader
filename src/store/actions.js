@@ -1,5 +1,6 @@
 import { fetchTopIDs, fetchItem, fetchStoriesByTraversal, checkStoriesByTraversal, watchList, watchConnection } from '@/firebase';
-import { difference, debounce } from 'lodash-es';
+import difference from 'lodash-es/difference';
+import debounce from 'lodash-es/debounce';
 
 let isFetchImmediately = false;
 let storageTimestamp = 0;

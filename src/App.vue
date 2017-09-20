@@ -11,7 +11,7 @@
 
 <script>
 import { mapActions } from 'vuex';
-import { debounce } from 'lodash-es';
+import debounce from 'lodash-es/debounce';
 import Item from '@/components/Item';
 import Spinner from '@/components/Spinner';
 import Tip from '@/components/Tip';
