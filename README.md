@@ -1,8 +1,18 @@
-# hn-reader
+# HN Reader
 
-> A simple hacker news reader
+> A simple hacker news reader built with VueJS.
+
+<p align="center">
+  <a href="https://lucienlee.github.io/HN-Reader/" target="_blank">
+    <img src="https://i.imgur.com/UYFssGo.png" width="700px">
+    <br>
+    Live Demo
+  </a>
+</p>
 
 ## Build Setup
+
+**Requires Node.js 6+**
 
 ``` bash
 # install dependencies
@@ -16,12 +26,9 @@ npm run build
 
 # build for production and view the bundle analyzer report
 npm run build --report
-
-# run unit tests
-npm run unit
-
-# run all tests
-npm test
 ```
 
-For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+## Feature
+
+- Infinite scroll to read stories on hacker news
+- Support offline usage (To test offline capability, you should test in production and cut off internet instead of browser throttling. The reason is [here](https://github.com/goldhand/sw-precache-webpack-plugin) and [here](https://bugs.chromium.org/p/chromium/issues/detail?id=423246).)
