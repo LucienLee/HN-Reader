@@ -11,6 +11,7 @@
 
 <script>
 export default {
+  name: 'item',
   props: ['item'],
   methods: {
     normalizeURL(item) {

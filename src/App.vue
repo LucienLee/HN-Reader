@@ -30,8 +30,8 @@ export default {
       isInitWithConnection: false,
       ticking: false,
       messages: {
-        error: 'You lost the internet. Please check your network connection!',
-        normal: 'Welcome back to internet.',
+        error: 'Oops, your connection seems off...',
+        normal: 'Welcome get back to online!',
       },
     };
   },

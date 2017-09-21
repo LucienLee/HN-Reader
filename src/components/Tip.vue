@@ -42,7 +42,7 @@ export default {
     },
     tipStyle() {
       return {
-        width: `${this.width}px`,
+        maxWidth: `${this.width}px`,
       };
     },
   },
@@ -77,6 +77,7 @@ $time: 0.2s
   height: 3em
   border-radius: 4px
   background: #fff
+  color: $text-color
   font-family: $title-font-family
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.15), 0 0.2em 1em rgba(0, 0, 0, 0.3)
 

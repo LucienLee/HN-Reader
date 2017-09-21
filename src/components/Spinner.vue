@@ -5,6 +5,7 @@
 
 <script>
 export default {
+  name: 'spinner',
   props: {
     color: {
       type: String,
