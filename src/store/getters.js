@@ -11,7 +11,7 @@ export default {
     return Object.keys(state.items).sort((a, b) => b - a)
       .map(id => state.items[id]).filter(item => !item.dead && !item.deleted);
   },
-  // For debug
+  /* For debug usage
   numOfItems(state) {
     return Object.keys(state.items).length;
   },
@@ -19,4 +19,5 @@ export default {
     return Object.keys(state.items).sort((a, b) => b - a)
       .map(id => state.items[id]).filter(item => item.dead || item.deleted);
   },
+  */
 };

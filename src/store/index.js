@@ -11,7 +11,7 @@ export default new Vuex.Store({
     list: [],
     items: {},
     itemsPerPage: 20,
-    reservedIDs: 750,
+    reservedIDs: 500,
     nextToFetchID: 0,
     isOnline: true,
     isLoading: true,

@@ -2,7 +2,6 @@
 import * as Firebase from 'firebase/app';
 import 'firebase/database';
 
-
 const HACKER_NEWS_CONFIG = {
   version: '/v0',
   config: {

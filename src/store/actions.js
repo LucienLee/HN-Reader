@@ -20,6 +20,7 @@ function load() {
 
 export default {
   async getNewestList({ commit, state }) {
+    // If data too old, refresh all list and item
     const outdated = Date.now() - storageTimestamp > 3 * 60 * 1000;
     if (state.list.length === 0 || outdated) {
       const topIDs = await fetchTopIDs();
@@ -38,7 +39,7 @@ export default {
     const numOfFetchByTraversal = itemsPerPage - numOfFetchInList;
     const fetchList = list.slice(beginIndex, beginIndex + numOfFetchInList);
 
-    // Find stock is not enough. stop probe asap
+    // Find stock is not enough. stop probing asap
     if (numOfFetchByTraversal > 0) {
       isFetchImmediately = true;
     }
@@ -55,7 +56,7 @@ export default {
         return nextID;
       });
 
-    // Fetch by travsersal id, which is slow
+    // Fetch by travsersal ID when there isn't enough stock of valid IDs
     if (numOfFetchByTraversal > 0) {
       await fetchStoriesByTraversal(nextToFetchID, numOfFetchByTraversal, (item) => {
         commit('SET_ITEM', { item });
@@ -85,24 +86,24 @@ export default {
   watchWaitToFetchList({ commit, state, getters }) {
     let isFetching = false;
     async function checkWaitToFetchList() {
-      // Wait loaded top list
-      if (state.list.length !== 0 && !isFetchImmediately) {
-        const numToFetch = state.reservedIDs - getters.numOfWaitToFetchIDs;
-        if (!isFetching && numToFetch > 0) {
-          isFetching = true;
-          await checkStoriesByTraversal(state.list[state.list.length - 1] - 1, numToFetch, (id) => {
-            if (!isFetchImmediately) {
-              commit('SET_LIST', { ids: [id] });
-              if (getters.nextToFetchIndex === -1) {
-                commit('SET_NEXT_TO_FETCH', { id });
-              }
+      const numToFetch = state.reservedIDs - getters.numOfWaitToFetchIDs;
+      if (!isFetchImmediately && !isFetching && numToFetch > 0) {
+        isFetching = true;
+        await checkStoriesByTraversal(state.list[state.list.length - 1] - 1, numToFetch, (id) => {
+          // Check again in case that flag is changed when callback
+          if (!isFetchImmediately) {
+            commit('SET_LIST', { ids: [id] });
+            if (getters.nextToFetchIndex === -1) {
+              commit('SET_NEXT_TO_FETCH', { id });
             }
-          }).then(() => {
-            isFetching = false;
-          });
-        }
+          }
+        });
+        isFetching = false;
       }
-      requestAnimationFrame(checkWaitToFetchList);
+
+      if (state.list[state.list.length - 1] > 0) {
+        requestAnimationFrame(checkWaitToFetchList);
+      }
     }
 
     const reqID = requestAnimationFrame(checkWaitToFetchList);
